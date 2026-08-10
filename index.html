@@ -1,0 +1,238 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Edulution Session Planner</title>
+    <link rel="stylesheet" href="styles.css?v=20260810" />
+</head>
+
+<body>
+    <div class="app-shell">
+        <header class="topbar">
+            <div class="branding">
+                <p class="eyebrow">Daily Session Planner</p>
+                <h1>Edulution</h1>
+            </div>
+
+            <div class="header-controls">
+                <div class="field-group">
+                    <label for="center-names">Center name</label>
+                    <select id="center-names" name="center-names">
+                        <option value="">Select a school / center name</option>
+                        <option value="Golden Gardens - SEG">Golden Gardens - SEG</option>
+                        <option value="Bright Future Academy">Bright Future Academy</option>
+                        <option value="Green Valley School">Green Valley School</option>
+                        <option value="St. Mary’s College">St. Mary’s College</option>
+                        <option value="Sunrise Secondary School">Sunrise Secondary School</option>
+                    </select>
+                </div>
+
+                <div class="field-group">
+                    <label for="sessionDate">Date</label>
+                    <input type="date" id="sessionDate" name="sessionDate" />
+                </div>
+            </div>
+
+            <div class="toolbar">
+                <button id="newSheetBtn" class="secondary" type="button">New Session</button>
+                <button id="saveBtn" type="button">Save All</button>
+            </div>
+        </header>
+
+        <section class="stats-panel" aria-label="Class attendance summary">
+            <div class="stats-row">
+                <div class="input-wrap">
+                    <label for="classSelect">Class</label>
+                    <select id="classSelect" name="classSelect">
+                        <option value="">Select class</option>
+                        <option value="4A">Grade 4A</option>
+                        <option value="4B">Grade 4B</option>
+                        <option value="4C">Grade 4C</option>
+                        <option value="4D">Grade 4D</option>
+                        <option value="4E">Grade 4E</option>
+                        <option value="4F">Grade 4F</option>
+                        <option value="5A">Grade 5A</option>
+                        <option value="5B">Grade 5B</option>
+                        <option value="5C">Grade 5C</option>
+                        <option value="5D">Grade 5D</option>
+                        <option value="5E">Grade 5E</option>
+                        <option value="5F">Grade 5F</option>
+                        <option value="6A">Grade 6A</option>
+                        <option value="6B">Grade 6B</option>
+                        <option value="6C">Grade 6C</option>
+                        <option value="6D">Grade 6D</option>
+                        <option value="6E">Grade 6E</option>
+                        <option value="6F">Grade 6F</option>
+                    </select>
+                </div>
+
+                <!-- <div class="input-wrap attendance-wrap">
+                    <label for="attendanceStatus">Attendance</label>
+                    <select id="attendanceStatus" name="attendanceStatus">
+                        <option value="Present">Present</option>
+                        <option value="Absent">Absent</option>
+                        <option value="Late">Late</option>
+                    </select>
+                </div> -->
+
+                <div class="input-wrap small-box">
+                    <label for="presentCount">Present</label>
+                    <input id="presentCount" type="number" min="0" value="49" />
+                </div>
+
+                <div class="input-wrap small-box">
+                    <label for="totalLearners">Total learners</label>
+                    <input id="totalLearners" type="number" min="0" value="50" />
+                </div>
+
+                <div class="input-wrap small-box highlight-box">
+                    <label for="attendancePercentage">Percentage</label>
+                    <input id="attendancePercentage" type="text" value="98.0%" readonly />
+                </div>
+            </div>
+        </section>
+        <section class="tracking-panel" aria-label="Tracking summary">
+            <div class="tracking-layout">
+                <div class="tracking-side">
+                    <label>Tracking</label>
+                </div>
+
+                <div class="tracking-columns">
+                    <div class="tracking-block">
+                        <div class="tracking-row tracking-header">
+                            <span>Progress</span>
+                            <span>Target</span>
+                            <span>Outcome</span>
+                        </div>
+                        <div class="tracking-row">
+                            <input type="number" min="0" value="0" />
+                            <input type="number" min="0" value="50" />
+                            <input type="text" value="0%" />
+                        </div>
+                    </div>
+
+                    <div class="tracking-block">
+                        <div class="tracking-row tracking-header">
+                            <span>Accuracy</span>
+                            <span>Target</span>
+                            <span>Outcome</span>
+                        </div>
+                        <div class="tracking-row">
+                            <input type="number" min="0" value="0" />
+                            <input type="number" min="0" value="0" />
+                            <input type="text" value="0" />
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        
+        <section class="notes notes-panel">
+            <div class="notes-layout">
+                <div class="notes-side">
+                    <label>Notes</label>
+                </div>
+
+                <div class="notes-columns">
+                    <div class="input-wrap">
+                        <textarea name="" id=""></textarea>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        
+        <section class="goals goals-panel">
+            <div class="goals-layout">
+                <div class="goals-side">
+                    <label>Goals</label>
+                </div>
+
+                <div class="goals-columns">
+                    <div class="input-wrapS">
+                        <textarea name="" id=""></textarea>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section class="diagnostic-panel" aria-label="Learner diagnostic summary">
+            <div class="diagnostic-header">
+                <h2>Groupings</h2>
+            </div>
+
+            <div class="diagnostic-table-wrap">
+                <table class="diagnostic-table">
+                    <thead>
+                        <tr>
+                            <th>Groupings</th>
+                            <th>Failed Concepts</th>
+                            <th>Misconceptions</th>
+                            <th>Common Wrong Answers</th>
+                            <th>Red Flags</th>
+                        </tr>
+                    </thead>
+                    <tbody id="diagnosticTableBody">
+                        <tr>
+                            <td class="group-name">Topics</td>
+                            <td><select name="" id="">
+                                    <option value="">Select a topic</option>
+                                    <option value="Topic 1">Topic 1</option>
+                                </select></td>
+                            <td><select name="" id="">
+                                    <option value="">Select a topic</option>
+                                    <option value="Topic 1">Topic 1</option>
+                                </select></td>
+                            <td><select name="" id="">
+                                    <option value="">Select a topic</option>
+                                    <option value="Topic 1">Topic 1</option>
+                                </select></td>
+                            <td><select name="" id="">
+                                    <option value="">Select a topic</option>
+                                    <option value="Topic 1">Topic 1</option>
+                                </select></td>
+                        </tr>
+
+                        <!-- <tr class="learner-row">
+                            <td class="learner-column">Learner Names</td>
+                            <td><input type="text" value="Teboho" /></td>
+                            <td><input type="text" value="Teboho" /></td>
+                            <td><input type="text" value="Juniour" /></td>
+                            <td><input type="text" value="Mlondi" /></td>
+                        </tr> -->
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="add-learner-wrap">
+                <button type="button" id="addLearnerBtn" class="add-learner-btn">+ Add learner</button>
+            </div>
+        </section>
+
+        <section class="follow-up follow-up-panel">
+            <div class="follow-up-layout">
+                <div class="follow-up-side">
+                    <label>Follow up</label>
+                </div>
+
+                <div class="follow-up-columns">
+                    <div class="input-wrap">
+                        <textarea name="" id=""></textarea>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </div>
+
+    <footer class="session-footer">
+        <div class="session-tabs" id="sessionTabs" aria-label="Saved sessions"></div>
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+    <script src="script.js?v=20260810"></script>
+</body>
+
+</html>
