@@ -1,9 +1,11 @@
 const SCHOOL_KEY = 'edu_school_name';
 const DATE_KEY = 'edu_session_date';
+const TERM_KEY = 'edu_session_term';
 const SESSIONS_KEY = 'edu_saved_sessions';
 const ACTIVE_SESSION_KEY = 'edu_active_session_id';
 
 const schoolSelect = document.getElementById('center-names');
+const termSelect = document.getElementById('termSelect');
 const sessionDate = document.getElementById('sessionDate');
 const saveBtn = document.getElementById('saveBtn');
 const newSheetBtn = document.getElementById('newSheetBtn');
@@ -15,6 +17,35 @@ const attendancePercentage = document.getElementById('attendancePercentage');
 const addLearnerBtn = document.getElementById('addLearnerBtn');
 const diagnosticTableBody = document.getElementById('diagnosticTableBody');
 const sessionTabs = document.getElementById('sessionTabs');
+
+const schoolOptions = [
+  'Golden Gardens',
+  'Polokong Primary School',
+  'Thabeng Primary School',
+  'Lindisa Primary School',
+  'Setlabotjha Primary School',
+  'Mojala-Thuto Primary School',
+  'Mqiniswa Primary School',
+  'Moloantoa Primary School',
+  'Qhoweng Primary School',
+  'Pitseng Primary School'
+];
+
+const topicOptions = [
+  'Common Fractions',
+  'Data Cycle',
+  'Mass',
+  'Transformations',
+  'Probability',
+  'Properties of 3D Objects',
+  'Lengths',
+  'Perimeter, Area & Volume',
+  'Properties of 2D-Shapes',
+  'Symmetry',
+  'Properties of 3D-Shapes'
+];
+
+const termOptions = ['Term 1', 'Term 2', 'Term 3', 'Term 4'];
 
 let activeSessionId = localStorage.getItem(ACTIVE_SESSION_KEY) || null;
 
@@ -34,6 +65,65 @@ function persistSessions(sessions) {
   localStorage.setItem(SESSIONS_KEY, JSON.stringify(sessions));
 }
 
+function getSessionById(id) {
+  return getSavedSessions().find((session) => session.id === id) || null;
+}
+
+function populateSelectOptions(select, options, includeEmpty = true) {
+  if (!select) return;
+  select.innerHTML = '';
+
+  if (includeEmpty) {
+    const placeholder = document.createElement('option');
+    placeholder.value = '';
+    placeholder.textContent = select.id === 'termSelect' ? 'Select term' : 'Select a school / center name';
+    select.appendChild(placeholder);
+  }
+
+  options.forEach((value) => {
+    const option = document.createElement('option');
+    option.value = value;
+    option.textContent = value;
+    select.appendChild(option);
+  });
+}
+
+function createTopicSelect(selectedValue = '') {
+  const select = document.createElement('select');
+  const placeholder = document.createElement('option');
+  placeholder.value = '';
+  placeholder.textContent = 'Select a topic';
+  select.appendChild(placeholder);
+
+  topicOptions.forEach((topic) => {
+    const option = document.createElement('option');
+    option.value = topic;
+    option.textContent = topic;
+    if (topic === selectedValue) {
+      option.selected = true;
+    }
+    select.appendChild(option);
+  });
+
+  return select;
+}
+
+function buildDefaultGroupingsRow() {
+  const row = document.createElement('tr');
+  const firstCell = document.createElement('td');
+  firstCell.className = 'group-name';
+  firstCell.textContent = 'Topics';
+  row.appendChild(firstCell);
+
+  for (let i = 0; i < 4; i++) {
+    const cell = document.createElement('td');
+    cell.appendChild(createTopicSelect());
+    row.appendChild(cell);
+  }
+
+  return row;
+}
+
 function formatClassLabel(classValue) {
   if (!classValue) return 'No Class';
   return classValue.startsWith('Grade ') ? classValue : `Grade ${classValue}`;
@@ -46,6 +136,7 @@ function buildSessionLabel(classValue, nextIndex) {
 
 function setDefaultFormState() {
   if (schoolSelect) schoolSelect.value = '';
+  if (termSelect) termSelect.value = '';
   if (sessionDate) sessionDate.value = getToday();
   if (classSelect) classSelect.value = '';
   if (presentCount) presentCount.value = '';
@@ -62,35 +153,8 @@ function setDefaultFormState() {
   if (followUpField) followUpField.value = '';
 
   if (diagnosticTableBody) {
-    diagnosticTableBody.innerHTML = `
-      <tr>
-        <td class="group-name">Topics</td>
-        <td>
-          <select>
-            <option value="">Select a topic</option>
-            <option value="Topic 1">Topic 1</option>
-          </select>
-        </td>
-        <td>
-          <select>
-            <option value="">Select a topic</option>
-            <option value="Topic 1">Topic 1</option>
-          </select>
-        </td>
-        <td>
-          <select>
-            <option value="">Select a topic</option>
-            <option value="Topic 1">Topic 1</option>
-          </select>
-        </td>
-        <td>
-          <select>
-            <option value="">Select a topic</option>
-            <option value="Topic 1">Topic 1</option>
-          </select>
-        </td>
-      </tr>
-    `;
+    diagnosticTableBody.innerHTML = '';
+    diagnosticTableBody.appendChild(buildDefaultGroupingsRow());
   }
 
   calculatePercentage();
@@ -128,6 +192,7 @@ function getCurrentSessionSnapshot() {
     id: activeSessionId || `session-${Date.now()}-${Math.random().toString(16).slice(2, 8)}`,
     label: '',
     school: schoolSelect ? schoolSelect.value : '',
+    term: termSelect ? termSelect.value : '',
     date: sessionDate ? sessionDate.value || getToday() : getToday(),
     className: classSelect ? classSelect.value : '',
     present: presentCount ? presentCount.value : '0',
@@ -203,13 +268,7 @@ function recreateGroupingsTable(rows) {
 
       rowValues.slice(1).forEach((value) => {
         const cell = document.createElement('td');
-        const select = document.createElement('select');
-        select.innerHTML = `
-          <option value="">Select a topic</option>
-          <option value="Topic 1">Topic 1</option>
-        `;
-        select.value = value || '';
-        cell.appendChild(select);
+        cell.appendChild(createTopicSelect(value));
         row.appendChild(cell);
       });
     }
@@ -222,6 +281,7 @@ function applySessionToForm(session) {
   if (!session) return;
 
   if (schoolSelect) schoolSelect.value = session.school || '';
+  if (termSelect) termSelect.value = session.term || '';
   if (sessionDate) sessionDate.value = session.date || getToday();
   if (classSelect) classSelect.value = session.className || '';
   if (presentCount) presentCount.value = session.present || '0';
@@ -239,8 +299,9 @@ function applySessionToForm(session) {
 
   if (session.groupings && session.groupings.length) {
     recreateGroupingsTable(session.groupings);
-  } else {
-    setDefaultFormState();
+  } else if (diagnosticTableBody) {
+    diagnosticTableBody.innerHTML = '';
+    diagnosticTableBody.appendChild(buildDefaultGroupingsRow());
   }
 
   calculatePercentage();
@@ -266,7 +327,13 @@ function renderSessionTabs() {
     button.className = `session-tab${session.id === activeSessionId ? ' active' : ''}`;
     button.textContent = session.label || `Session ${sessions.indexOf(session) + 1}`;
     button.addEventListener('click', () => {
-      switchToSession(session.id);
+      if (activeSessionId && activeSessionId !== session.id) {
+        saveCurrentSession();
+      }
+      activeSessionId = session.id;
+      localStorage.setItem(ACTIVE_SESSION_KEY, activeSessionId);
+      applySessionToForm(session);
+      renderSessionTabs();
     });
     sessionTabs.appendChild(button);
   });
@@ -274,6 +341,7 @@ function renderSessionTabs() {
 
 function saveSelection() {
   if (schoolSelect) localStorage.setItem(SCHOOL_KEY, schoolSelect.value);
+  if (termSelect) localStorage.setItem(TERM_KEY, termSelect.value);
   if (sessionDate) localStorage.setItem(DATE_KEY, sessionDate.value);
 }
 
@@ -291,7 +359,7 @@ function saveCurrentSession({ forceNew = false } = {}) {
 
     if (existingIndex >= 0) {
       snapshot.id = activeSessionId;
-      snapshot.label = sessions[existingIndex].label || buildSessionLabel(snapshot.className, existingIndex + 1);
+      snapshot.label = buildSessionLabel(snapshot.className, existingIndex + 1);
       sessions[existingIndex] = snapshot;
     } else {
       snapshot.id = `session-${Date.now()}-${Math.random().toString(16).slice(2, 8)}`;
@@ -307,28 +375,6 @@ function saveCurrentSession({ forceNew = false } = {}) {
   return snapshot;
 }
 
-function switchToSession(sessionId) {
-  const sessions = getSavedSessions();
-  const currentSession = sessions.find((session) => session.id === activeSessionId);
-
-  if (currentSession && activeSessionId) {
-    const liveSnapshot = getCurrentSessionSnapshot();
-    const existingIndex = sessions.findIndex((session) => session.id === activeSessionId);
-    if (existingIndex >= 0) {
-      sessions[existingIndex] = { ...currentSession, ...liveSnapshot, id: activeSessionId };
-      persistSessions(sessions);
-    }
-  }
-
-  const targetSession = sessions.find((session) => session.id === sessionId);
-  if (!targetSession) return;
-
-  activeSessionId = sessionId;
-  localStorage.setItem(ACTIVE_SESSION_KEY, activeSessionId);
-  applySessionToForm(targetSession);
-  renderSessionTabs();
-}
-
 function exportAllSessionsToExcel() {
   const sessions = getSavedSessions();
 
@@ -342,6 +388,7 @@ function exportAllSessionsToExcel() {
   sessions.forEach((session) => {
     const rows = [];
     rows.push({ Section: 'School', Value: session.school || '' });
+    rows.push({ Section: 'Term', Value: session.term || '' });
     rows.push({ Section: 'Date', Value: session.date || '' });
     rows.push({ Section: 'Class', Value: formatClassLabel(session.className) || '' });
     rows.push({ Section: 'Present', Value: session.present || '0' });
@@ -370,76 +417,23 @@ function exportAllSessionsToExcel() {
 }
 
 if (schoolSelect) {
-  schoolSelect.addEventListener('change', () => {
-    saveSelection();
-    if (activeSessionId) saveCurrentSession();
-  });
+  schoolSelect.addEventListener('change', saveSelection);
 }
-if (classSelect) {
-  classSelect.addEventListener('change', () => {
-    if (activeSessionId) saveCurrentSession();
-  });
+if (termSelect) {
+  termSelect.addEventListener('change', saveSelection);
 }
 if (sessionDate) {
-  sessionDate.addEventListener('change', () => {
-    saveSelection();
-    if (activeSessionId) saveCurrentSession();
-  });
+  sessionDate.addEventListener('change', saveSelection);
 }
 if (presentCount) {
-  presentCount.addEventListener('input', () => {
-    calculatePercentage();
-    if (activeSessionId) saveCurrentSession();
-  });
+  presentCount.addEventListener('input', calculatePercentage);
 }
 if (totalLearners) {
-  totalLearners.addEventListener('input', () => {
-    calculatePercentage();
-    if (activeSessionId) saveCurrentSession();
-  });
+  totalLearners.addEventListener('input', calculatePercentage);
 }
 if (addLearnerBtn) {
-  addLearnerBtn.addEventListener('click', () => {
-    addLearnerRow();
-    if (activeSessionId) saveCurrentSession();
-  });
+  addLearnerBtn.addEventListener('click', addLearnerRow);
 }
-
-const syncNotesFields = () => {
-  if (activeSessionId) saveCurrentSession();
-};
-
-const notesField = document.querySelector('.notes textarea');
-if (notesField) {
-  notesField.addEventListener('input', syncNotesFields);
-}
-
-const goalsField = document.querySelector('.goals textarea');
-if (goalsField) {
-  goalsField.addEventListener('input', syncNotesFields);
-}
-
-const followUpField = document.querySelector('.follow-up textarea');
-if (followUpField) {
-  followUpField.addEventListener('input', syncNotesFields);
-}
-
-const trackingInputs = document.querySelectorAll('.tracking-panel input');
-trackingInputs.forEach((input) => {
-  input.addEventListener('input', () => {
-    if (activeSessionId) saveCurrentSession();
-  });
-});
-
-const groupingInputs = document.querySelectorAll('select, .diagnostic-table input');
-groupingInputs.forEach((input) => {
-  input.addEventListener('input', () => {
-    if (activeSessionId) saveCurrentSession();
-  });
-  input.addEventListener('change', () => {
-    if (activeSessionId) saveCurrentSession();
-  });
-});
 
 if (attendanceStatus) {
   attendanceStatus.addEventListener('change', () => {
@@ -453,7 +447,6 @@ if (attendanceStatus) {
       attendanceStatus.style.background = '#fff7ed';
       attendanceStatus.style.color = '#c2410c';
     }
-    if (activeSessionId) saveCurrentSession();
   });
 }
 
@@ -466,7 +459,6 @@ if (saveBtn) {
 
 if (newSheetBtn) {
   newSheetBtn.addEventListener('click', () => {
-    if (activeSessionId) saveCurrentSession();
     saveCurrentSession({ forceNew: true });
     setDefaultFormState();
     activeSessionId = null;
@@ -476,11 +468,19 @@ if (newSheetBtn) {
 }
 
 function loadSavedValues() {
+  populateSelectOptions(schoolSelect, schoolOptions);
+  populateSelectOptions(termSelect, termOptions);
+
   const savedSchool = localStorage.getItem(SCHOOL_KEY) || '';
+  const savedTerm = localStorage.getItem(TERM_KEY) || '';
   const savedDate = localStorage.getItem(DATE_KEY) || getToday();
 
   if (schoolSelect && savedSchool && [...schoolSelect.options].some((option) => option.value === savedSchool)) {
     schoolSelect.value = savedSchool;
+  }
+
+  if (termSelect && savedTerm && [...termSelect.options].some((option) => option.value === savedTerm)) {
+    termSelect.value = savedTerm;
   }
 
   if (sessionDate) sessionDate.value = savedDate;
