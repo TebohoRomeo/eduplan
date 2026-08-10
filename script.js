@@ -11,6 +11,7 @@ const saveBtn = document.getElementById('saveBtn');
 const newSheetBtn = document.getElementById('newSheetBtn');
 const classSelect = document.getElementById('classSelect');
 const attendanceStatus = document.getElementById('attendanceStatus');
+const trackingTopicSelect = document.getElementById('trackingTopic');
 const presentCount = document.getElementById('presentCount');
 const totalLearners = document.getElementById('totalLearners');
 const attendancePercentage = document.getElementById('attendancePercentage');
@@ -137,6 +138,7 @@ function buildSessionLabel(classValue, nextIndex) {
 function setDefaultFormState() {
   if (schoolSelect) schoolSelect.value = '';
   if (termSelect) termSelect.value = '';
+  if (trackingTopicSelect) trackingTopicSelect.value = '';
   if (sessionDate) sessionDate.value = getToday();
   if (classSelect) classSelect.value = '';
   if (presentCount) presentCount.value = '';
@@ -201,6 +203,7 @@ function getCurrentSessionSnapshot() {
     notes: document.querySelector('.notes textarea')?.value || '',
     goals: document.querySelector('.goals textarea')?.value || '',
     followUp: document.querySelector('.follow-up textarea')?.value || '',
+    topic: trackingTopicSelect ? trackingTopicSelect.value : '',
     tracking: Array.from(document.querySelectorAll('.tracking-panel input')).map((input) => input.value),
     groupings: collectGroupingRows(),
     createdAt: Date.now()
@@ -282,6 +285,7 @@ function applySessionToForm(session) {
 
   if (schoolSelect) schoolSelect.value = session.school || '';
   if (termSelect) termSelect.value = session.term || '';
+  if (trackingTopicSelect) trackingTopicSelect.value = session.topic || '';
   if (sessionDate) sessionDate.value = session.date || getToday();
   if (classSelect) classSelect.value = session.className || '';
   if (presentCount) presentCount.value = session.present || '0';
@@ -389,6 +393,7 @@ function exportAllSessionsToExcel() {
     const rows = [];
     rows.push({ Section: 'School', Value: session.school || '' });
     rows.push({ Section: 'Term', Value: session.term || '' });
+    rows.push({ Section: 'Topic', Value: session.topic || '' });
     rows.push({ Section: 'Date', Value: session.date || '' });
     rows.push({ Section: 'Class', Value: formatClassLabel(session.className) || '' });
     rows.push({ Section: 'Present', Value: session.present || '0' });
@@ -421,6 +426,9 @@ if (schoolSelect) {
 }
 if (termSelect) {
   termSelect.addEventListener('change', saveSelection);
+}
+if (trackingTopicSelect) {
+  trackingTopicSelect.addEventListener('change', saveSelection);
 }
 if (sessionDate) {
   sessionDate.addEventListener('change', saveSelection);
@@ -470,6 +478,7 @@ if (newSheetBtn) {
 function loadSavedValues() {
   populateSelectOptions(schoolSelect, schoolOptions);
   populateSelectOptions(termSelect, termOptions);
+  populateSelectOptions(trackingTopicSelect, topicOptions);
 
   const savedSchool = localStorage.getItem(SCHOOL_KEY) || '';
   const savedTerm = localStorage.getItem(TERM_KEY) || '';
