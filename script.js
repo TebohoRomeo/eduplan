@@ -326,6 +326,9 @@ function renderSessionTabs() {
   }
 
   sessions.forEach((session) => {
+    const tab = document.createElement('div');
+    tab.className = `session-tab-wrapper`;
+
     const button = document.createElement('button');
     button.type = 'button';
     button.className = `session-tab${session.id === activeSessionId ? ' active' : ''}`;
@@ -339,8 +342,43 @@ function renderSessionTabs() {
       applySessionToForm(session);
       renderSessionTabs();
     });
-    sessionTabs.appendChild(button);
+
+    const closeBtn = document.createElement('button');
+    closeBtn.type = 'button';
+    closeBtn.className = 'session-close';
+    closeBtn.title = 'Remove session';
+    closeBtn.innerHTML = '&times;';
+    closeBtn.addEventListener('click', (ev) => {
+      ev.stopPropagation();
+      deleteSession(session.id);
+    });
+
+    tab.appendChild(button);
+    tab.appendChild(closeBtn);
+    sessionTabs.appendChild(tab);
   });
+}
+
+function deleteSession(sessionId) {
+  const sessions = getSavedSessions();
+  const remaining = sessions.filter((s) => s.id !== sessionId);
+  persistSessions(remaining);
+
+  // If deleted session was active, pick another or clear form
+  if (activeSessionId === sessionId) {
+    if (remaining.length) {
+      const next = remaining[Math.max(0, remaining.length - 1)];
+      activeSessionId = next.id;
+      localStorage.setItem(ACTIVE_SESSION_KEY, activeSessionId);
+      applySessionToForm(next);
+    } else {
+      activeSessionId = null;
+      localStorage.removeItem(ACTIVE_SESSION_KEY);
+      setDefaultFormState();
+    }
+  }
+
+  renderSessionTabs();
 }
 
 function saveSelection() {
