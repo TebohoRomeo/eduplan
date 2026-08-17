@@ -440,7 +440,7 @@ button.secondary {
 }
 
 .notes-panel textarea,
-.goals-panel textarea,
+.goals-panel textarea, jvxz  
 .follow-up-panel textarea {
   width: 100%;
   min-height: 220px;
@@ -478,6 +478,42 @@ button.secondary {
   border: 1px solid var(--border);
   border-radius: 12px;
   overflow: hidden;
+}
+
+.group-controls {
+  display: flex;
+  gap: 8px;
+  justify-content: flex-end;
+  margin: 12px 0;
+}
+
+.group-controls select {
+  min-width: 180px;
+  padding: 8px 10px;
+  border-radius: 10px;
+  border: 1px solid var(--border);
+  background: #fff;
+}
+
+.diagnostic-table thead th input.group-name-edit {
+  width: 100%;
+  border: none;
+  background: transparent;
+  font-weight: 700;
+  font-size: 0.95rem;
+}
+
+.diagnostic-table thead th .group-remove {
+  margin-left: 8px;
+  background: transparent;
+  border: none;
+  color: var(--muted);
+  font-size: 1rem;
+  cursor: pointer;
+}
+
+.diagnostic-table thead th .group-remove:hover {
+  color: var(--text);
 }
 
 .diagnostic-table th,

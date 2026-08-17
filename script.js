@@ -17,6 +17,8 @@ const totalLearners = document.getElementById('totalLearners');
 const attendancePercentage = document.getElementById('attendancePercentage');
 const addLearnerBtn = document.getElementById('addLearnerBtn');
 const diagnosticTableBody = document.getElementById('diagnosticTableBody');
+const diagnosticHeaderRow = document.getElementById('diagnosticHeaderRow');
+const addGroupBtn = document.getElementById('addGroupBtn');
 const sessionTabs = document.getElementById('sessionTabs');
 
 const schoolOptions = [
@@ -116,13 +118,177 @@ function buildDefaultGroupingsRow() {
   firstCell.textContent = 'Topics';
   row.appendChild(firstCell);
 
-  for (let i = 0; i < 4; i++) {
+  const groupCount = getCurrentGroupNames().length - 1; // exclude first column
+  for (let i = 0; i < Math.max(1, groupCount); i++) {
     const cell = document.createElement('td');
     cell.appendChild(createTopicSelect());
     row.appendChild(cell);
   }
 
   return row;
+}
+
+function getDefaultGroupNames() {
+  return ['Groupings', 'Failed Concepts', 'Misconceptions', 'Common Wrong Answers', 'Red Flags'];
+}
+
+function getGroupNamesForSession(session = null) {
+  // If session provided and has groupNames, use them. Otherwise use saved global or defaults.
+  if (session && Array.isArray(session.groupNames) && session.groupNames.length) return session.groupNames;
+  const saved = JSON.parse(localStorage.getItem('edu_group_names') || 'null');
+  if (Array.isArray(saved) && saved.length) return saved;
+  return getDefaultGroupNames();
+}
+
+function getCurrentGroupNames() {
+  return getGroupNamesForSession(getSessionById(activeSessionId));
+}
+
+function persistGroupNames(names) {
+  localStorage.setItem('edu_group_names', JSON.stringify(names));
+}
+
+function renderDiagnosticHeader(names) {
+  if (!diagnosticHeaderRow) return;
+  diagnosticHeaderRow.innerHTML = '';
+
+  names.forEach((name, idx) => {
+    const th = document.createElement('th');
+    if (idx === 0) {
+      th.className = 'group-name';
+      const span = document.createElement('span');
+      span.textContent = name;
+      th.appendChild(span);
+    } else {
+      const wrapper = document.createElement('div');
+      wrapper.style.display = 'flex';
+      wrapper.style.alignItems = 'center';
+      wrapper.style.gap = '8px';
+
+      const input = document.createElement('input');
+      input.className = 'group-name-edit';
+      input.value = name;
+      input.addEventListener('change', () => {
+        const current = getCurrentGroupNames();
+        current[idx] = input.value;
+        persistGroupNames(current);
+        const sessions = getSavedSessions();
+        const sidx = sessions.findIndex((s) => s.id === activeSessionId);
+        if (sidx >= 0) {
+          sessions[sidx].groupNames = current;
+          persistSessions(sessions);
+        }
+        renderSessionTabs();
+      });
+
+      const removeBtn = document.createElement('button');
+      removeBtn.type = 'button';
+      removeBtn.className = 'group-remove';
+      removeBtn.title = `Remove group ${name}`;
+      removeBtn.innerHTML = '&times;';
+      removeBtn.addEventListener('click', (ev) => {
+        ev.stopPropagation();
+        removeGroupColumn(idx);
+      });
+
+      wrapper.appendChild(input);
+      wrapper.appendChild(removeBtn);
+      th.appendChild(wrapper);
+    }
+    diagnosticHeaderRow.appendChild(th);
+  });
+}
+
+  
+
+// group control handlers
+function addGroupColumn() {
+  const names = getCurrentGroupNames();
+  names.push(`Group ${names.length}`);
+  persistGroupNames(names);
+  // update active session groupNames if saved
+  const sessions = getSavedSessions();
+  const sidx = sessions.findIndex((s) => s.id === activeSessionId);
+  if (sidx >= 0) {
+    sessions[sidx].groupNames = names;
+    persistSessions(sessions);
+  }
+  renderDiagnosticHeader(names);
+  // rebuild rows to include new column
+  const rows = collectGroupingRows();
+  rebuildGroupingsBody(rows);
+}
+
+function removeGroupColumn(indexToRemove) {
+  const names = getCurrentGroupNames();
+  if (names.length <= 2) return; // keep at least grouping + one column
+
+  let idx = typeof indexToRemove === 'number' ? indexToRemove : null;
+  if (idx === null) return; // must provide index when removing (per-column buttons)
+
+  if (idx <= 0 || idx >= names.length) return;
+
+  names.splice(idx, 1);
+  persistGroupNames(names);
+
+  // update all saved sessions to remove that column and update groupNames
+  const sessions = getSavedSessions();
+  sessions.forEach((s) => {
+    if (Array.isArray(s.groupNames)) s.groupNames = s.groupNames.slice();
+    else s.groupNames = getDefaultGroupNames();
+
+    if (Array.isArray(s.groupings)) {
+      s.groupings = s.groupings.map((r) => {
+        const copy = r.slice();
+        if (idx < copy.length) copy.splice(idx, 1);
+        return copy;
+      });
+    }
+  });
+  persistSessions(sessions);
+
+  renderDiagnosticHeader(names);
+  const rows = collectGroupingRows();
+  rebuildGroupingsBody(rows.map((r) => r.slice(0, names.length)));
+}
+
+function rebuildGroupingsBody(rows) {
+  if (!diagnosticTableBody) return;
+  diagnosticTableBody.innerHTML = '';
+
+  if (!rows || !rows.length) {
+    diagnosticTableBody.appendChild(buildDefaultGroupingsRow());
+    return;
+  }
+
+  rows.forEach((rowValues) => {
+    const row = document.createElement('tr');
+    const firstCell = document.createElement('td');
+    firstCell.className = 'group-name';
+    firstCell.textContent = rowValues[0] || '';
+    row.appendChild(firstCell);
+
+    const groupNames = getCurrentGroupNames();
+    const cellsCount = Math.max(groupNames.length - 1, rowValues.length - 1);
+
+    for (let i = 0; i < cellsCount; i++) {
+      const cell = document.createElement('td');
+      const val = rowValues[i + 1] || '';
+      // If this row is the topics row, render selects
+      if ((rowValues[0] || '').toLowerCase() === 'topics') {
+        cell.appendChild(createTopicSelect(val));
+      } else {
+        const input = document.createElement('input');
+        input.type = 'text';
+        input.value = val;
+        input.placeholder = 'Learner name / note';
+        cell.appendChild(input);
+      }
+      row.appendChild(cell);
+    }
+
+    diagnosticTableBody.appendChild(row);
+  });
 }
 
 function formatClassLabel(classValue) {
@@ -206,6 +372,7 @@ function getCurrentSessionSnapshot() {
     topic: trackingTopicSelect ? trackingTopicSelect.value : '',
     tracking: Array.from(document.querySelectorAll('.tracking-panel input')).map((input) => input.value),
     groupings: collectGroupingRows(),
+    groupNames: getCurrentGroupNames(),
     createdAt: Date.now()
   };
 
@@ -224,61 +391,30 @@ function addLearnerRow() {
   emptyCell.className = 'learner-column';
   emptyCell.textContent = '';
 
-  const cells = Array.from({ length: 4 }, () => {
+  // create as many columns as current group configuration (excluding first column)
+  const groupNames = getCurrentGroupNames();
+  const colCount = Math.max(1, (groupNames.length - 1));
+
+  row.appendChild(emptyCell);
+  for (let i = 0; i < colCount; i++) {
     const cell = document.createElement('td');
     const input = document.createElement('input');
     input.type = 'text';
     input.placeholder = 'Learner name';
     cell.appendChild(input);
-    return cell;
-  });
+    row.appendChild(cell);
+  }
 
-  row.appendChild(emptyCell);
-  cells.forEach((cell) => row.appendChild(cell));
   diagnosticTableBody.appendChild(row);
 }
 
-function recreateGroupingsTable(rows) {
-  if (!diagnosticTableBody) return;
+// (removed duplicate static recreateGroupingsTable; using rebuilt dynamic version)
 
-  diagnosticTableBody.innerHTML = '';
-
-  rows.forEach((rowValues) => {
-    const row = document.createElement('tr');
-    const isLearnerRow = rowValues.length >= 5 && rowValues[0] === '';
-
-    if (isLearnerRow) {
-      const firstCell = document.createElement('td');
-      firstCell.className = 'learner-column';
-      firstCell.textContent = '';
-      row.appendChild(firstCell);
-
-      rowValues.slice(1).forEach((value) => {
-        const cell = document.createElement('td');
-        const input = document.createElement('input');
-        input.type = 'text';
-        input.value = value || '';
-        input.placeholder = 'Learner name';
-        cell.appendChild(input);
-        row.appendChild(cell);
-      });
-    } else {
-      const firstValue = rowValues[0] || 'Topics';
-      const firstCell = document.createElement('td');
-      firstCell.className = 'group-name';
-      firstCell.textContent = firstValue;
-      row.appendChild(firstCell);
-
-      rowValues.slice(1).forEach((value) => {
-        const cell = document.createElement('td');
-        cell.appendChild(createTopicSelect(value));
-        row.appendChild(cell);
-      });
-    }
-
-    diagnosticTableBody.appendChild(row);
-  });
-}
+  // New wrapper that respects dynamic header/group count
+  function recreateGroupingsTable(rows) {
+    // reuse new rebuild function
+    rebuildGroupingsBody(rows);
+  }
 
 function applySessionToForm(session) {
   if (!session) return;
@@ -307,6 +443,9 @@ function applySessionToForm(session) {
     diagnosticTableBody.innerHTML = '';
     diagnosticTableBody.appendChild(buildDefaultGroupingsRow());
   }
+
+  // Render header inputs based on group names
+  renderDiagnosticHeader(getCurrentGroupNames());
 
   calculatePercentage();
 }
@@ -357,6 +496,9 @@ function renderSessionTabs() {
     tab.appendChild(closeBtn);
     sessionTabs.appendChild(tab);
   });
+
+  // Ensure header reflects currently active session or global
+  renderDiagnosticHeader(getCurrentGroupNames());
 }
 
 function deleteSession(sessionId) {
@@ -480,6 +622,12 @@ if (totalLearners) {
 if (addLearnerBtn) {
   addLearnerBtn.addEventListener('click', addLearnerRow);
 }
+
+if (addGroupBtn) {
+  addGroupBtn.addEventListener('click', addGroupColumn);
+}
+
+// removal is handled per-column via header buttons
 
 if (attendanceStatus) {
   attendanceStatus.addEventListener('change', () => {
