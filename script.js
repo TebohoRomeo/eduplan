@@ -674,6 +674,9 @@ async function saveAllLocalSessionsToServer() {
   if (!sessions.length) return;
 
   try {
+    // show global spinner while syncing
+    const spinner = document.getElementById('globalSpinner');
+    if (spinner) spinner.classList.remove('hidden');
     const centerName = localStorage.getItem('edu_center_name') || '';
     // include tempId so server returns it back and we can reconcile
     const payload = sessions.map((s) => ({ ...s, centerName, tempId: s.tempId || s.id }));
@@ -705,6 +708,9 @@ async function saveAllLocalSessionsToServer() {
     console.warn('Could not save sessions to server:', err.message);
     // Keep UI smooth: notify the user but don't block
     alert('Warning: could not save sessions to server. They are saved locally and will retry later.');
+  } finally {
+    const spinner = document.getElementById('globalSpinner');
+    if (spinner) spinner.classList.add('hidden');
   }
 }
 

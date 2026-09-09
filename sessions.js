@@ -15,6 +15,8 @@ async function loadSessions() {
   centerLabel.textContent = `${centerName} — ${centerCode}`;
 
   try {
+    const spinner = document.getElementById('globalSpinner');
+    if (spinner) spinner.classList.remove('hidden');
     const res = await fetch(`https://edu-backend-6m32.onrender.com/api/sessions?centerName=${encodeURIComponent(centerName)}`);
     const data = await res.json();
     if (!res.ok) throw new Error(data?.error || 'Failed to fetch sessions');
@@ -23,6 +25,9 @@ async function loadSessions() {
   } catch (err) {
     console.error(err);
     emptyState.textContent = 'Unable to fetch sessions. Is the backend running?';
+  } finally {
+    const spinner = document.getElementById('globalSpinner');
+    if (spinner) spinner.classList.add('hidden');
   }
 }
 
