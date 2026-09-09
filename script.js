@@ -677,7 +677,7 @@ async function saveAllLocalSessionsToServer() {
     const centerName = localStorage.getItem('edu_center_name') || '';
     // include tempId so server returns it back and we can reconcile
     const payload = sessions.map((s) => ({ ...s, centerName, tempId: s.tempId || s.id }));
-    const res = await fetch('http://localhost:5000/api/sessions/bulk', {
+    const res = await fetch('https://edu-backend-6m32.onrender.com/api/sessions/bulk', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(payload)

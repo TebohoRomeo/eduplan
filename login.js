@@ -6,7 +6,7 @@ loginForm?.addEventListener('submit', async (e) => {
   const centerCode = document.getElementById('centerCode').value.trim();
 
   try {
-    const res = await fetch('http://localhost:5000/api/auth/login', {
+    const res = await fetch('https://edu-backend-6m32.onrender.com/api/auth/login', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ centerName, centerCode })

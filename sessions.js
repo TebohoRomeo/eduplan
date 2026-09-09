@@ -15,7 +15,7 @@ async function loadSessions() {
   centerLabel.textContent = `${centerName} — ${centerCode}`;
 
   try {
-    const res = await fetch(`http://localhost:5000/api/sessions?centerName=${encodeURIComponent(centerName)}`);
+    const res = await fetch(`https://edu-backend-6m32.onrender.com/api/sessions?centerName=${encodeURIComponent(centerName)}`);
     const data = await res.json();
     if (!res.ok) throw new Error(data?.error || 'Failed to fetch sessions');
 
