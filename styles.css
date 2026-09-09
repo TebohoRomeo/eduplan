@@ -683,3 +683,149 @@ button.secondary {
     width: 100%;
   }
 }
+
+/* Auth / Sessions pages */
+.auth-page,
+.sessions-page {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 40px 20px;
+  background: linear-gradient(180deg, #f8fbff 0%, #ffffff 100%);
+}
+
+.auth-shell {
+  width: 100%;
+  max-width: 420px;
+}
+
+.auth-card {
+  background: #fff;
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  padding: 28px;
+  box-shadow: var(--shadow);
+}
+
+.auth-card h1 {
+  margin: 0 0 8px;
+}
+
+.auth-card .muted {
+  color: var(--muted);
+  margin-bottom: 16px;
+}
+
+.auth-card label {
+  display: block;
+  margin-top: 12px;
+  font-weight: 700;
+  color: var(--muted);
+}
+
+.auth-card input {
+  width: 100%;
+  padding: 10px 12px;
+  margin-top: 6px;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+}
+
+.auth-card form {
+  display: flex;
+  flex-direction: column;
+}
+
+.auth-card .form-actions {
+  display: flex;
+  gap: 12px;
+  margin-top: 18px;
+  align-items: center;
+  justify-content: center;
+}
+
+.auth-card h1,
+.auth-card .muted {
+  text-align: center;
+}
+
+.auth-card button[type="submit"] {
+  width: 100%;
+  max-width: 280px;
+  padding: 12px 18px;
+  border-radius: 10px;
+  background: var(--primary);
+  color: #fff;
+  font-weight: 700;
+  border: none;
+  cursor: pointer;
+}
+
+.auth-card button[type="submit"]:hover {
+  transform: translateY(-1px);
+}
+
+.secondary-link {
+  display: inline-block;
+  padding: 8px 12px;
+  border-radius: 10px;
+  background: transparent;
+  color: var(--primary-dark);
+  text-decoration: none;
+  font-weight: 700;
+}
+
+.sessions-header {
+  width: 100%;
+  max-width: 1100px;
+  margin: 18px auto;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.sessions-list-shell {
+  width: 100%;
+  max-width: 1100px;
+  margin: 0 auto 60px;
+  padding: 0 20px;
+}
+
+.sessions-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  gap: 16px;
+}
+
+.session-card {
+  background: #fff;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 16px;
+  box-shadow: 0 8px 20px rgba(31,66,197,0.06);
+}
+
+.session-card h3 {
+  margin: 0 0 8px;
+}
+
+.session-meta {
+  display: flex;
+  gap: 12px;
+  color: var(--muted);
+  font-size: 0.95rem;
+  margin-bottom: 8px;
+}
+
+.session-notes {
+  margin: 0;
+  color: var(--text);
+}
+
+.empty-state {
+  text-align: center;
+  margin-top: 24px;
+}
+

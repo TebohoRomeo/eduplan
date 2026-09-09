@@ -52,6 +52,14 @@ const termOptions = ['Term 1', 'Term 2', 'Term 3', 'Term 4'];
 
 let activeSessionId = localStorage.getItem(ACTIVE_SESSION_KEY) || null;
 
+// Require center login before using planner
+const _center = localStorage.getItem('edu_center_name');
+const _centerCode = localStorage.getItem('edu_center_code');
+if (!(_center && _centerCode)) {
+  // Redirect to login page immediately
+  window.location.href = 'login.html';
+}
+
 function getToday() {
   return new Date().toISOString().split('T')[0];
 }
@@ -378,6 +386,8 @@ function getCurrentSessionSnapshot() {
 
   const sessionCount = getSavedSessions().length + 1;
   snapshot.label = buildSessionLabel(snapshot.className, sessionCount);
+  // keep a temporary id so server can correlate results
+  snapshot.tempId = snapshot.id;
   return snapshot;
 }
 
@@ -536,6 +546,8 @@ function saveCurrentSession({ forceNew = false } = {}) {
   if (forceNew) {
     snapshot.id = `session-${Date.now()}-${Math.random().toString(16).slice(2, 8)}`;
     snapshot.label = buildSessionLabel(snapshot.className, sessions.length + 1);
+    // mark tempId for server reconciliation
+    snapshot.tempId = snapshot.id;
     sessions.push(snapshot);
     activeSessionId = snapshot.id;
   } else {
@@ -544,10 +556,12 @@ function saveCurrentSession({ forceNew = false } = {}) {
     if (existingIndex >= 0) {
       snapshot.id = activeSessionId;
       snapshot.label = buildSessionLabel(snapshot.className, existingIndex + 1);
+      snapshot.tempId = snapshot.id;
       sessions[existingIndex] = snapshot;
     } else {
       snapshot.id = `session-${Date.now()}-${Math.random().toString(16).slice(2, 8)}`;
       snapshot.label = buildSessionLabel(snapshot.className, sessions.length + 1);
+      snapshot.tempId = snapshot.id;
       sessions.push(snapshot);
       activeSessionId = snapshot.id;
     }
@@ -645,18 +659,66 @@ if (attendanceStatus) {
 }
 
 if (saveBtn) {
-  saveBtn.addEventListener('click', () => {
+  saveBtn.addEventListener('click', async () => {
+    // Save current session locally first
     saveCurrentSession();
+    // Then attempt to persist all local sessions to the server
+    await saveAllLocalSessionsToServer();
+    // Also export to excel as a convenience
     exportAllSessionsToExcel();
   });
 }
 
+async function saveAllLocalSessionsToServer() {
+  const sessions = getSavedSessions();
+  if (!sessions.length) return;
+
+  try {
+    const centerName = localStorage.getItem('edu_center_name') || '';
+    // include tempId so server returns it back and we can reconcile
+    const payload = sessions.map((s) => ({ ...s, centerName, tempId: s.tempId || s.id }));
+    const res = await fetch('http://localhost:5000/api/sessions/bulk', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload)
+    });
+
+    const data = await res.json();
+    if (!res.ok) throw new Error(data?.error || 'Failed to save to server');
+
+    console.log('Saved sessions to server:', data.count);
+    // Update local sessions with returned server ids (reconcile by tempId)
+    if (Array.isArray(data.sessions) && data.sessions.length) {
+      const local = getSavedSessions();
+      data.sessions.forEach((r) => {
+        const idx = local.findIndex((ls) => (ls.tempId && r.tempId && ls.tempId === r.tempId) || ls.id === r.tempId || ls.id === r.id);
+        if (idx >= 0) {
+          local[idx].serverId = r.id;
+          local[idx].synced = true;
+        }
+      });
+      persistSessions(local);
+      renderSessionTabs();
+    }
+    return data;
+  } catch (err) {
+    console.warn('Could not save sessions to server:', err.message);
+    // Keep UI smooth: notify the user but don't block
+    alert('Warning: could not save sessions to server. They are saved locally and will retry later.');
+  }
+}
+
 if (newSheetBtn) {
   newSheetBtn.addEventListener('click', () => {
-    saveCurrentSession({ forceNew: true });
+    // Save current to local storage (becomes a saved tab)
+    const saved = saveCurrentSession({ forceNew: true });
+
+    // Create a new blank active session (unsaved) with a temp id
+    const newActiveId = `session-${Date.now()}-${Math.random().toString(16).slice(2, 8)}`;
+    activeSessionId = newActiveId;
+    localStorage.setItem(ACTIVE_SESSION_KEY, activeSessionId);
+
     setDefaultFormState();
-    activeSessionId = null;
-    localStorage.removeItem(ACTIVE_SESSION_KEY);
     renderSessionTabs();
   });
 }

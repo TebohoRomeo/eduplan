@@ -1,0 +1,28 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>Saved Sessions — Edulution</title>
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body class="sessions-page">
+    <header class="sessions-header">
+      <div class="branding">
+        <h1>Saved Sessions</h1>
+        <p id="centerLabel" class="muted"></p>
+      </div>
+      <nav>
+        <a href="index.html" class="secondary-link">Back to Planner</a>
+        <a href="login.html" class="secondary-link">Switch Center</a>
+      </nav>
+    </header>
+
+    <main class="sessions-list-shell">
+      <div id="sessionsContainer" class="sessions-grid"></div>
+      <div id="emptyState" class="empty-state muted">No sessions found for this center.</div>
+    </main>
+
+    <script src="sessions.js"></script>
+  </body>
+</html>
