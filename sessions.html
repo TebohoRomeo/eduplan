@@ -20,6 +20,38 @@
     </header>
 
     <main class="sessions-list-shell">
+      <div class="sessions-filter-bar">
+        <div class="filter-field">
+          <label for="sessionsDateFilter">Filter by date</label>
+          <input id="sessionsDateFilter" type="date" />
+        </div>
+        <div class="filter-field">
+          <label for="sessionsClassFilter">Filter by class</label>
+          <select id="sessionsClassFilter">
+            <option value="">All classes</option>
+            <option value="4A">Grade 4A</option>
+            <option value="4B">Grade 4B</option>
+            <option value="4C">Grade 4C</option>
+            <option value="4D">Grade 4D</option>
+            <option value="4E">Grade 4E</option>
+            <option value="4F">Grade 4F</option>
+            <option value="5A">Grade 5A</option>
+            <option value="5B">Grade 5B</option>
+            <option value="5C">Grade 5C</option>
+            <option value="5D">Grade 5D</option>
+            <option value="5E">Grade 5E</option>
+            <option value="5F">Grade 5F</option>
+            <option value="6A">Grade 6A</option>
+            <option value="6B">Grade 6B</option>
+            <option value="6C">Grade 6C</option>
+            <option value="6D">Grade 6D</option>
+            <option value="6E">Grade 6E</option>
+            <option value="6F">Grade 6F</option>
+          </select>
+        </div>
+        <button id="clearFiltersBtn" class="secondary" type="button">Clear filters</button>
+      </div>
+
       <div id="sessionsContainer" class="sessions-grid"></div>
       <div id="emptyState" class="empty-state muted">No sessions found for this center.</div>
     </main>

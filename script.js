@@ -20,6 +20,7 @@ const diagnosticTableBody = document.getElementById('diagnosticTableBody');
 const diagnosticHeaderRow = document.getElementById('diagnosticHeaderRow');
 const addGroupBtn = document.getElementById('addGroupBtn');
 const sessionTabs = document.getElementById('sessionTabs');
+const loggedCenterName = document.getElementById('loggedCenterName');
 
 const schoolOptions = [
   'Golden Gardens',
@@ -62,6 +63,11 @@ if (!(_center && _centerCode)) {
 
 function getToday() {
   return new Date().toISOString().split('T')[0];
+}
+
+function updateLoggedCenterDisplay() {
+  if (!loggedCenterName) return;
+  loggedCenterName.textContent = localStorage.getItem('edu_center_name') || 'Center';
 }
 
 function getSavedSessions() {
@@ -141,10 +147,9 @@ function getDefaultGroupNames() {
 }
 
 function getGroupNamesForSession(session = null) {
-  // If session provided and has groupNames, use them. Otherwise use saved global or defaults.
+  // Prefer the currently active saved session's own group configuration.
+  // For a brand-new unsaved tab, always start fresh with the default grouping layout.
   if (session && Array.isArray(session.groupNames) && session.groupNames.length) return session.groupNames;
-  const saved = JSON.parse(localStorage.getItem('edu_group_names') || 'null');
-  if (Array.isArray(saved) && saved.length) return saved;
   return getDefaultGroupNames();
 }
 
@@ -716,20 +721,47 @@ async function saveAllLocalSessionsToServer() {
 
 if (newSheetBtn) {
   newSheetBtn.addEventListener('click', () => {
-    // Save current to local storage (becomes a saved tab)
-    const saved = saveCurrentSession({ forceNew: true });
+    // Save the current session first so the previously opened tab keeps its content intact.
+    saveCurrentSession({ forceNew: true });
 
-    // Create a new blank active session (unsaved) with a temp id
+    // Create a brand-new clean session tab that appears in the bottom tab bar.
+    const sessions = getSavedSessions();
     const newActiveId = `session-${Date.now()}-${Math.random().toString(16).slice(2, 8)}`;
+    const blankSession = {
+      id: newActiveId,
+      label: buildSessionLabel('', sessions.length + 1),
+      school: '',
+      term: '',
+      date: getToday(),
+      className: '',
+      present: '0',
+      total: '0',
+      percentage: '0.0%',
+      notes: '',
+      goals: '',
+      followUp: '',
+      topic: '',
+      tracking: [],
+      groupings: [],
+      groupNames: getDefaultGroupNames(),
+      createdAt: Date.now(),
+      tempId: newActiveId
+    };
+
+    sessions.push(blankSession);
+    persistSessions(sessions);
+
     activeSessionId = newActiveId;
     localStorage.setItem(ACTIVE_SESSION_KEY, activeSessionId);
 
     setDefaultFormState();
+    applySessionToForm(blankSession);
     renderSessionTabs();
   });
 }
 
 function loadSavedValues() {
+  updateLoggedCenterDisplay();
   populateSelectOptions(schoolSelect, schoolOptions);
   populateSelectOptions(termSelect, termOptions);
   populateSelectOptions(trackingTopicSelect, topicOptions);
