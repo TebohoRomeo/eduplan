@@ -714,6 +714,16 @@ button.secondary {
   box-shadow: var(--shadow);
 }
 
+.admin-auth-card {
+  border-radius: 18px;
+  border-color: rgba(47, 91, 255, 0.24);
+}
+
+.admin-eyebrow {
+  text-align: center;
+  margin-bottom: 8px;
+}
+
 .auth-card h1 {
   margin: 0 0 8px;
 }
@@ -749,6 +759,15 @@ button.secondary {
   margin-top: 18px;
   align-items: center;
   justify-content: center;
+}
+
+.stacked-actions {
+  flex-direction: column;
+}
+
+.inline-link {
+  width: 100%;
+  text-align: center;
 }
 
 .auth-card h1,
@@ -793,6 +812,35 @@ button.secondary {
   flex-wrap: wrap;
 }
 
+.admin-header {
+  justify-content: space-between;
+  align-items: center;
+}
+
+.admin-branding {
+  flex: 1;
+}
+
+.admin-nav {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.admin-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 42px;
+  padding: 0.7rem 0.9rem;
+  border-radius: 999px;
+  background: var(--primary-soft);
+  border: 1px solid var(--border);
+  color: var(--primary-dark);
+  font-weight: 700;
+}
+
 .sessions-header .branding {
   display: flex;
   flex-direction: column;
@@ -817,6 +865,10 @@ button.secondary {
   border: 1px solid var(--border);
   border-radius: 16px;
   box-shadow: var(--shadow);
+}
+
+.admin-filter-bar {
+  background: linear-gradient(180deg, rgba(255,255,255,0.9), rgba(234,240,255,0.9));
 }
 
 .filter-field {

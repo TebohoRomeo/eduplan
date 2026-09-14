@@ -1,0 +1,72 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>Admin Sessions — Edulution</title>
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body class="sessions-page admin-page">
+    <div id="globalSpinner" class="spinner-overlay hidden"><div class="spinner"></div></div>
+
+    <header class="sessions-header admin-header">
+      <div class="branding admin-branding">
+        <p class="eyebrow">Admin dashboard</p>
+        <h1>All Sessions</h1>
+      </div>
+
+      <nav class="admin-nav">
+        <span class="admin-badge" id="adminUserLabel">Admin</span>
+        <button id="logoutAdminBtn" class="secondary" type="button">Logout</button>
+      </nav>
+    </header>
+
+    <main class="sessions-list-shell admin-shell">
+      <div class="sessions-filter-bar admin-filter-bar">
+        <div class="filter-field">
+          <label for="adminSessionsDateFilter">Filter by date</label>
+          <input id="adminSessionsDateFilter" type="date" />
+        </div>
+
+        <div class="filter-field">
+          <label for="adminSessionsCenterFilter">Filter by center</label>
+          <select id="adminSessionsCenterFilter">
+            <option value="">All centers</option>
+          </select>
+        </div>
+
+        <div class="filter-field">
+          <label for="adminSessionsClassFilter">Filter by class</label>
+          <select id="adminSessionsClassFilter">
+            <option value="">All classes</option>
+            <option value="4A">Grade 4A</option>
+            <option value="4B">Grade 4B</option>
+            <option value="4C">Grade 4C</option>
+            <option value="4D">Grade 4D</option>
+            <option value="4E">Grade 4E</option>
+            <option value="4F">Grade 4F</option>
+            <option value="5A">Grade 5A</option>
+            <option value="5B">Grade 5B</option>
+            <option value="5C">Grade 5C</option>
+            <option value="5D">Grade 5D</option>
+            <option value="5E">Grade 5E</option>
+            <option value="5F">Grade 5F</option>
+            <option value="6A">Grade 6A</option>
+            <option value="6B">Grade 6B</option>
+            <option value="6C">Grade 6C</option>
+            <option value="6D">Grade 6D</option>
+            <option value="6E">Grade 6E</option>
+            <option value="6F">Grade 6F</option>
+          </select>
+        </div>
+
+        <button id="clearAdminFiltersBtn" class="secondary" type="button">Clear filters</button>
+      </div>
+
+      <div id="adminSessionsContainer" class="sessions-grid"></div>
+      <div id="adminEmptyState" class="empty-state muted">No sessions found.</div>
+    </main>
+
+    <script src="admin-sessions.js"></script>
+  </body>
+</html>

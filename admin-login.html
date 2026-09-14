@@ -1,0 +1,35 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>Admin Login — Edulution</title>
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body class="auth-page">
+    <div id="globalSpinner" class="spinner-overlay hidden"><div class="spinner"></div></div>
+
+    <main class="auth-shell">
+      <div class="auth-card admin-auth-card">
+        <p class="eyebrow admin-eyebrow">Admin access</p>
+        <h1>Edulution Admin</h1>
+        <p class="muted">Sign in with your admin email and password to view every saved session.</p>
+
+        <form id="adminLoginForm">
+          <label for="adminEmail">Admin email</label>
+          <input id="adminEmail" name="adminEmail" type="email" placeholder="admin@edulution.org" required />
+
+          <label for="adminPassword">Password</label>
+          <input id="adminPassword" name="adminPassword" type="password" placeholder="Enter password" required />
+
+          <div class="form-actions stacked-actions">
+            <button type="submit">Login as admin</button>
+            <a href="login.html" class="secondary-link inline-link">Back to center login</a>
+          </div>
+        </form>
+      </div>
+    </main>
+
+    <script src="admin-login.js"></script>
+  </body>
+</html>
